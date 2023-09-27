@@ -1,7 +1,5 @@
 package duynt.com.example.ex2lab3;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -11,18 +9,23 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private EditText editText;
-    private ListView listView;
-    private ArrayAdapter<String> adapter;
-    private List<String> itemList = new ArrayList<>();
+    EditText editText;
+    ListView listView;
+    ArrayAdapter<String> adapter;
+    List<String> itemList = new ArrayList<>();
+    ArrayList<Integer> selectedItems = new ArrayList<>();
+    String message;
+    Integer indexValue;
 
 
-    private String[] sampleData = {"Item 1", "Item 2", "Item 3"};
+    private String[] sampleData = {"Android", "PHP", "IOS", "Unity", "ASP.Net"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,21 +38,22 @@ public class MainActivity extends AppCompatActivity {
         Button editButton = findViewById(R.id.button5);
         Button deleteButton = findViewById(R.id.button6);
 
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, itemList);
-        listView.setAdapter(adapter);
-
         for (String item : sampleData) {
             itemList.add(item);
         }
+
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, itemList);
+        listView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
 
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                String selectedItem = itemList.get(position);
-                editText.setText(selectedItem);
-                listView.setItemChecked(position, true);
+                indexValue = position;
+                editText.setText(adapterView.getItemAtPosition(position).toString());
+                message = adapterView.getItemAtPosition(position).toString() + " has been selected";
+                Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -88,13 +92,21 @@ public class MainActivity extends AppCompatActivity {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int position = listView.getCheckedItemPosition();
-                if (position != ListView.INVALID_POSITION) {
-                    itemList.remove(position);
-                    adapter.notifyDataSetChanged();
-                    editText.setText("");
+                if (indexValue != null) {
+                    if (indexValue >= 0 && indexValue < itemList.size()) {
+                        itemList.remove(indexValue.intValue());
+                        adapter.notifyDataSetChanged();
+                        Toast.makeText(
+                                MainActivity.this, "Deleted success", Toast.LENGTH_SHORT).show();
+                        editText.setText("");
+                        indexValue = null;
+                    } else {
+                        Toast.makeText(
+                                MainActivity.this, "Invalid item index", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    Toast.makeText(MainActivity.this, "Please select an item to delete.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(
+                            MainActivity.this, "No item selected", Toast.LENGTH_SHORT).show();
                 }
             }
         });
